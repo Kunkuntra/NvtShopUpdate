@@ -1,0 +1,44 @@
+<form method="POST" action="/product/store">
+<h3>Thêm sản phẩm</h3>
+    <div class="form-group mt-4">
+        <label for="name">Tên sản phẩm</label>
+        <input type="text" class="form-control" id="name" name="name">
+    </div>
+    <div class="form-group">
+        <label for="description">Mô tả sản phẩm</label>
+        <textarea class="form-control" id="description" name="description"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="image">Link ảnh</label>
+        <input type="text" class="form-control" id="image" name="image">
+    </div>
+    <div class="form-group">
+        <label for="productType">Phân loại</label>
+        <select class="form-control form-control-sm select-set-width" name="productType"  required>
+            <option value="Other">Khác</option>
+            <option value="Furnitures">Nội thất</option>
+            <option value="Foods">Đồ ăn</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="brand">Hãng</label>
+        <input type="text" class="form-control" id="brand" name="brand">
+    </div>
+    <div class="form-group">
+        <label for="currentPrice">Giá mới</label>
+        <input type="text" class="form-control" id="currentPrice" name="currentPrice">
+    </div>
+    <div class="form-group">
+        <label for="oldPrice">Giá cũ</label>
+        <input type="text" class="form-control" id="oldPrice" name="oldPrice">
+    </div>
+    <div class="form-group">
+        <label for="origin">Nước sản xuất</label>
+        <input type="text" class="form-control" id="origin" name="origin">
+    </div>
+    <div class="form-group">
+        <label for="remaining">Số lượng</label>
+        <input type="text" class="form-control" id="remaining" name="remaining">
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+</form>

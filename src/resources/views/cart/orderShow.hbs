@@ -1,0 +1,38 @@
+<form name="container-form" class="mt-4" >
+    <h1>Đơn hàng</h1>
+    <a href="/order/admin/order">Quay lại</a>
+    <div class="mt-4">Khách hàng: </div>
+    <img src="/img/{{ user.image }}" alt="avatar" class="user-avt size-medium">{{ user.name }}
+
+    <div class="mt-2">Sản phẩm</div>
+    <div>
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th scope="col">STT</th>
+                    <th scope="col"></th>
+                    <th scope="col">Tên</th>
+                    <th scope="col">Đơn giá</th>
+                    <th scope="col">Số lượng</th>
+                    <th scope="col">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each cart.items}}
+                    <tr>
+                        <th scope="row">{{sum @index 1}}</th>
+                        <td><img src="{{ this.product.image }}" alt="Ảnh sản phẩm" class="img-product-cart"></td>
+                        <td>{{ this.product.name}}</td>
+                        <td class="unit-price">{{ this.product.currentPrice }}</td>
+                        <td>
+                            <span class="quantity-cart">{{ this.quantity }}</span>
+                        </td>
+                        <td class="total-amount">{{ multi this.quantity this.product.currentPrice }}</td>
+                    </tr>
+                    {{else}}
+                    <span>Đơn hàng trống</span>
+                {{/each}}  
+            </tbody>
+        </table>
+    </div>
+</form>

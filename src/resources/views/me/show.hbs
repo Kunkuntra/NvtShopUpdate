@@ -1,0 +1,23 @@
+<div class="row product__show">
+    <div class="col-xl-12">
+        <div class="row">
+            <div class="col-xl-5">
+                <img class="image-show" src="/img/{{user.image}}" alt="Avatar">
+                <form action="/me/update-image?_method=PATCH" method="POST" enctype="multipart/form-data">
+                    <label for="image">Chọn ảnh:</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <button type="submit" class="btn btn-primary">Cập nhật ảnh</button>
+                </form>
+            </div>
+            <div class="col-xl-7">
+                <h1 class="product-name">{{user.name}}</h1>
+                <h1 class="information">Email: {{user.email}}</h1>
+                <h1 class="information">Số điện thoại: {{user.phonenumber}}</h1>
+                <h1 class="information">Địa chỉ: {{user.address}}</h1>
+                <button class="btn btn-dark"><a href="/me/update">Chỉnh sửa thông tin</a></button>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-12">
+    </div>
+</div>

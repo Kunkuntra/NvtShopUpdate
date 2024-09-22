@@ -1,0 +1,153 @@
+
+<form method="POST" name="container-form" class="mt-4" action="/user/handle-form-actions">
+  <div>
+    <a href="/stored/user">Quay lại trang danh sách sản phẩm</a>
+    <h2>Sản phẩm đã xóa</h2>
+    <div class="mt-4 d-flex align-items-center">
+      <div class="form-check mr-4">
+        <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+        <label class="form-check-label" for="checkbox-all">
+          Chọn tất cả
+        </label>
+      </div>
+
+      <select class="form-control form-control-sm select-set-width" name="action"  required>
+        <option value="">-- Hành động --</option>
+        <option value="restore">khôi phục</option>
+        <option value="destroy">Xóa</option>
+      </select>
+
+      <button type="submit" class="btn btn-primary ml-4 btn-submit-all disabled">Thực hiện</button>
+    </div>
+  </div>
+  <table class="table mt-4">
+    <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">STT</th>
+            <th scope="col">Tên</th>
+            <th scope="col">Email</th>
+            <th scope="col">Địa chỉ</th>
+            <th scope="col">Số ĐT</th>
+            <th scope="col">Thời gian tạo</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each users}}
+            <tr>
+                <td>
+                  <div class="form-check mr-4">
+                    <input class="form-check-input" type="checkbox" name="userIds[]" value="{{this._id}}">
+                  </div>
+                </td>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.email}}</td>
+                <td>{{this.address}}</td>
+                <td>{{this.phonenumber}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="/user/{{this._id}}/edit" class="btn btn-link btn-restore" data-id="{{this._id}}">Khôi phục</a> 
+                    <a href="#" class="btn btn-link" data-toggle="modal" data-target="#deleteuser" data-id="{{this._id}}">Xóa hoàn toàn</a>
+                </td>
+            </tr>
+            {{else}}
+              <tr aria-colspan="5">
+                <td>Thùng rác trống.</td>
+              </tr>
+              
+        {{/each}}  
+    </tbody>
+  </table>
+</form>
+
+{{!-- model delete user --}}
+<div class="modal" tabindex="-1" role="dialog" id="deleteuser" aria-labelledby="deleteuserLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xóa tài khoản?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Sau khi xóa sẽ không thể khôi phục lại. Bạn chắc chắn muốn tiếp tục xóa tài khoản này??</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-delete-user" type="button" class="btn btn-danger">Xóa bỏ</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<form method="POST" id="form-delete-user"></form>
+<form method="POST" id="form-restore-user"></form>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        var userId;
+        var btnDeleteuser = document.getElementById("btn-delete-user");
+        var formDeleteuser = document.getElementById("form-delete-user");
+        var formRestoreuser = document.getElementById("form-restore-user");
+        var btnRestore = $(".btn-restore"); //đã lấy ra được hết các thẻ có class btn-restore
+        
+        var checkboxAll = $("#checkbox-all"); // jacuzzi thì sẽ là: $("#checkbox-all")
+        var checkboxuserItems = $('input[name="userIds[]"]');
+        var containerForm = document.forms['container-form'];
+        var btnSubmitAll = document.querySelector(".btn-submit-all");
+
+        $('#deleteuser').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            userId = button.data('id'); //lấy được data-id
+        })
+        btnDeleteuser.onclick = function(){
+            formDeleteuser.action = "/user/" + userId + "/destroy?_method=DELETE";
+            formDeleteuser.submit();
+        }
+
+        //nghe được hành vi bấm vào nút restore
+        btnRestore.click(function(e){
+          e.preventDefault(); //xóa hành vi mặc định của các thẻ, ở đây là thẻ a
+          userId = $(this).data('id'); //là lấy được data-id của thẻ mình bấm vào;
+          formRestoreuser.action = "/user/" + userId + "/restore?_method=PATCH";
+          formRestoreuser.submit();
+        });
+
+        // checkbox-all change
+        checkboxAll.change(function () {
+          var isCheckedAll = $(this).prop('checked');
+          checkboxuserItems.prop('checked', isCheckedAll);
+          renderCheckAllSubmitBtn();
+        })
+
+        //checkbox user items change
+        checkboxuserItems.change(function (){
+          var isCheckedAll = checkboxuserItems.length === $('input[name="userIds[]"]:checked').length;
+          checkboxAll.prop('checked', isCheckedAll);
+          renderCheckAllSubmitBtn();
+        })
+        
+        //check all submit onclick
+        btnSubmitAll.onclick = function (e){
+          var isSubmitable = $(this).hasClass('disabled');
+          if(isSubmitable) e.preventDefault();
+        }
+
+        //re-render check all submit btn
+        function renderCheckAllSubmitBtn(){
+          var checkedLengthuserItems = $('input[name="userIds[]"]:checked').length;
+          if(checkedLengthuserItems > 0){
+            btnSubmitAll.classList.remove('disabled');
+            console.log('true')
+          }else {
+            console.log('false')
+            btnSubmitAll.classList.add('disabled');
+          }
+        }
+    });
+</script>

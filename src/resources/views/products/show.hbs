@@ -1,0 +1,295 @@
+<div class="row product__show">
+    <div class="col-xl-12">
+        <div class="row">
+            <div class="col-xl-5">
+                <img class="image-show" src="{{product.image}}" alt="Ảnh sản phẩm">
+            </div>
+            <div class="col-xl-7">
+                <h1 class="product-name">{{product.name}}</h1>
+                <div class="show__product-price">
+                    <span class="price-old">{{product.oldPrice}}đ</span>
+                    <span class="price-current">{{product.currentPrice}}đ</span>
+                    {{#if product.oldPrice}}
+                    <span class="price-percent">{{percent product.oldPrice product.currentPrice}}% GIẢM</span>
+                    {{/if}}
+                </div>
+                <div class="quantity">
+                    <span class="quantity__label">Số lượng: </span>
+                    <nav aria-label="Page navigation example" class="quantity__btn">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link decrease" href="#">-</a></li>
+                            <li class="page-item"><a class="page-link quantity-value" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link increase" href="#">+</a></li>
+                        </ul>
+                    </nav>
+                    <span class="quantity__still">{{product.remaining}}</span> sản phẩm có sẵn
+                </div>
+                <div class="btn__add">
+                    <button type="submit" id="add-to-cart" class="btn-add btn__add-cart">Thêm vào giỏ hàng</button>
+                    <button type="submit" id="by-bill" class="btn-add btn__add-products">Mua ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-12">
+        <div class="product__description">
+            <h2 class="description-label">Mô tả sản phẩm</h2>
+            <span class="description-content">
+                {{product.description}}
+            </span>
+        </div>
+    </div>
+    <div class="col-xl-12">
+        <div class="product__comment">
+            <h2 class="comment-label">Comment</h2>
+            <div id="user__comment">
+                <div class="user__comment">
+                    <div class="avt-box">
+                        <img src="https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg" alt="avt user" class="user-avt">
+                    </div>
+                    <div class="user-info">
+                        <h3 class="user-name">Thang Nguyen</h3>
+                        <p class="user-content-comment">Sản phẩm rất tốt</p>
+                    </div>
+                </div>
+
+                {{!-- <h1>{{users.name}}</h1>
+                
+                {{#each comments}}
+                    <div class="user__comment">
+                        <div class="avt-box">
+                            <img src="https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg" alt="avt user" class="user-avt">
+                        </div>
+                        <div class="user-info">
+                            <h3 class="user-name">{{getUserNameComment this.userId users}}</h3>
+                            <p class="user-content-comment">{{this.content}}</p>
+                        </div>
+                    </div>
+                {{/each}}   --}}
+            </div>
+        </div>
+        <form method="POST" action="/comment">
+        <input type="text" name="productId" id="product-id" class="d-none" value="{{product._id}}">
+            <div class="form-group comment-input">
+                <input type="text" class="form-control" id="inputComment" name="comment" placeholder="Nhập comments">
+            </div>
+            <button type="submit" class="btn btn-primary">Nhập</button>
+        </form>
+    </div>
+
+    <form id="form-add-to-cart" method="POST" action="/cart/add-to-cart">
+        <input type="hidden" name="productId" id="product-id" value="{{product._id}}">
+        <input type="hidden" name="quantity" id="product-quantity" value="1">
+    </form>
+    <form action="/cart/bill" id="form-order"></form>
+</div>
+<script>
+    var productId = document.querySelector('#product-id');
+    var userApi = 'http://localhost:3000/user';
+    var commentsApi = 'http://localhost:3000/comment';  
+    function fetchComments(callback) {
+        fetch(commentsApi)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (objectComments){
+                var arrayComment = objectComments.comments
+                var arrayComments = [];
+                for(var comment in arrayComment){
+                    if(arrayComment[comment].productId == productId.value){
+                        arrayComments.push(arrayComment[comment])
+                    }
+                }
+
+                var userIds = arrayComments.map(function(comment){
+                    return comment.userId;
+                })
+
+                return getUsersByIds(userIds)
+                    .then(function (user) {
+                        return {
+                            users : user,
+                            comments : arrayComments
+                        }
+                    })
+            })
+            .then(callback)
+    }
+
+
+    function renderCommentsTest(data){
+        var commentBlock = document.querySelector('#user__comment')
+        var html ='';
+        data.comments.forEach(function (comment){
+            var user = data.users.find(function (user){
+                return user._id === comment.userId;
+            })
+            html += `
+                        <div class="user__comment">
+                            <div class="avt-box">
+                                <img src="/img/${user.image}" alt="avt user" class="user-avt">
+                            </div>
+                            <div class="user-info">
+                                <h3 class="user-name">${user.name}</h3>
+                                <p class="user-content-comment">${comment.content}</p>
+                            </div>
+                        </div>
+                    `
+        });
+        commentBlock.innerHTML = html
+    }
+
+    function getUsersByIds(userIds){
+        return fetch(userApi)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (objectUsers){
+                var arrayUsers = objectUsers.user
+                var result = arrayUsers.filter(function(user){
+                    return userIds.includes(user._id)
+                });
+                //console.log(result)
+                return result
+            }   
+        )
+    }
+
+    //tạo một hàm để lấy dữ liệu fetch tên getComment và đưa vào hàm start
+    function getComments(callback){
+        fetch(commentsApi)
+            .then(function(response){
+                return response.json();
+            })
+            .then(callback);
+    }
+    //tạo một hàm để hiển thị ra trình duyệt
+    function renderComments(comments){
+        var listCommentsBlock = document.querySelector('#user__comment');
+        var htmls = comments.map(function(comment){
+            return`
+                <div class="user__comment">
+                    <div class="avt-box">
+                        <img src="https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg">
+                    </div>
+                    <div class="user-info">
+                        <h3 class="user-name">${user.name}</h3>
+                        <p class="user-content-comment">${comment.content}</p>
+                    </div>
+                </div>
+            `
+        })
+        listCommentsBlock.innerHTML = htmls.join('');
+    }
+
+    /*getUsersByIds(['65c4a2e49a0f9ead49485d11'])
+        .then(function(users){
+            console.log(users)
+        })*/
+    fetchComments(renderCommentsTest);
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const decreaseButton = document.querySelector('.decrease');
+        const increaseButton = document.querySelector('.increase');
+        const quantityValueElement = document.querySelector('.quantity-value');
+        var remaining = document.querySelector('.quantity__still').textContent;
+        let quantityValue = parseInt(quantityValueElement.textContent, 10);
+
+        decreaseButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (quantityValue > 1) { 
+                quantityValue--;
+                quantityValueElement.textContent = quantityValue;
+            }
+        });
+
+        increaseButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            remaining = Number(remaining)
+            if (quantityValue < remaining){
+                quantityValue++;
+                quantityValueElement.textContent = quantityValue;
+            }
+        });
+    });
+
+    //add-to-cart
+    const formAddToCart = document.getElementById('form-add-to-cart');
+    const btnAddToCart = document.getElementById('add-to-cart');
+    const productQuantity = document.getElementById('product-quantity');
+    btnAddToCart.onclick = function () {
+        var quantity = parseInt(document.querySelector('.quantity-value').textContent, 10);
+        console.log(quantity);
+        productQuantity.value = quantity;
+        formAddToCart.submit();
+    }
+
+    //bill
+
+    function setCookie(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        let expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    document.getElementById('by-bill').onclick = function(){
+        // Cập nhật cartData vào cookie
+        saveCartDataToCookie();
+        document.getElementById('form-order').submit();
+    };
+
+    function saveCartDataToCookie() {
+        var existingCartData = getCookie('cartData');
+        var cartData = [];
+        
+        if (existingCartData) {
+            // Nếu đã tồn tại, xóa cartData hiện có
+            document.cookie = 'cartData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            // Parse dữ liệu hiện có từ cookie và thêm vào cartData
+            //cartData = JSON.parse(existingCartData);
+        }
+
+        // Lấy thông tin sản phẩm mới để thêm vào cartData
+        var productId = document.getElementById('product-id').value;
+        var quantity = parseInt(document.querySelector('.quantity-value').textContent, 10);
+        var unitPrice = parseInt(document.querySelector('.price-current').textContent.replace('đ', '').trim(), 10);
+        var totalAmount = quantity * unitPrice;
+        
+        var cartItem = {
+            productId: productId,
+            quantity: quantity,
+            unitPrice: unitPrice,
+            totalAmount: totalAmount
+        };
+
+        // Thêm cartItem mới vào cartData
+        cartData.push(cartItem);
+        console.log(JSON.stringify(cartData));
+        var cartDataJSON = JSON.stringify(cartData);
+
+        // Lưu cartData vào cookie
+        setCookie('cartData', cartDataJSON, 1);
+    }
+
+    // Hàm lấy giá trị của cookie bằng tên
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+
+</script>
+

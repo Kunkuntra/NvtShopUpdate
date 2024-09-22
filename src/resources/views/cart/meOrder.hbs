@@ -1,0 +1,86 @@
+<form name="container-form" class="mt-4" >
+    <h1>Các đơn hàng</h1>
+    <div class="mt-4 d-flex align-items-center">
+        <div class="form-check mr-4">
+            <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+            <label class="form-check-label" for="checkbox-all">
+            Chọn tất cả
+            </label>
+        </div>
+    </div>
+    <div>
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Đơn hàng số</th>
+                    <th scope="col">Địa chỉ</th>
+                    <th scope="col">Số tiền</th>
+                    <th scope="col">Tình trạng</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each data}}
+                    <tr>
+                        <td>
+                            <div class="form-check mr-4">
+                                <input class="form-check-input" type="checkbox" name="productIds[]" value="{{this.order._id}}">
+                            </div>
+                        </td>
+                        <th scope="row">{{sum @index 1}}</th>
+                        <td class="unit-price">{{#if this.order.shippingAddress}}{{ this.order.shippingAddress }}{{else}}{{ this.user.address }}{{/if}}</td>
+                        <td class="total-amount">{{ this.order.totalCost }}</td>
+                        <td>{{ this.order.status }}</td>
+                        <td>
+                            <a href="#" data-id="{{this.order._id}}" class="btn btn-link btn-info">Xem chi tiết</a> 
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+
+                    <span>Chưa có đơn hàng nào</span>
+                    </tr>
+                {{/each}}  
+            </tbody>
+        </table>
+    </div>
+</form>
+<form method="POST" id="form-confirm"></form>
+<form method="POST" id="form-delivered"></form>
+<form method="GET" id="form-info"></form>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var checkboxAll = $("#checkbox-all");
+        var checkboxProductItems = $('input[name="productIds[]"]');
+        var containerForm = $("#container-form");
+
+        checkboxAll.change(function () {
+            var isCheckedAll = $(this).prop('checked');
+            checkboxProductItems.prop('checked', isCheckedAll);
+        });
+
+        // Checkbox product items change
+        checkboxProductItems.change(function () {
+            var isCheckedAll = checkboxProductItems.length === $('input[name="productIds[]"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+        });
+
+        $('#deleteProduct').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            productId = button.data('id');
+        });
+
+
+        $('.btn-info').click(function() {
+            var orderId = $(this).data('id'); 
+            var formInfo = $('#form-info');
+            formInfo.attr('action', "/order/info-order/" + orderId);
+            formInfo.submit();
+        });
+
+    });
+
+</script>

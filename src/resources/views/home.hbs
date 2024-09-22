@@ -1,0 +1,116 @@
+<div class="mt-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3">
+                <ul class="list-group">
+                    <li class="list-group-item {{#if (eq activeType 'all')}}active{{/if}}">
+                        <a href="/">Tất cả</a>
+                    </li>
+                    <li class="list-group-item {{#if (eq activeType 'Furnitures')}}active{{/if}}">
+                        <a href="/?type=Furnitures">Đồ gia dụng</a>
+                    </li>
+                    <li class="list-group-item {{#if (eq activeType 'Foods')}}active{{/if}}">
+                        <a href="/?type=Foods">Thực phẩm</a>
+                    </li>
+                    <li class="list-group-item {{#if (eq activeType 'Other')}}active{{/if}}">
+                        <a href="/?type=Other">Khác</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-xl-9">
+                <div class="row">
+                    {{#each products}}
+                    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 mb-4">
+                        <a class="home-product-item" href="/product/{{this.slug}}">
+                            <div class="home-product-item__img" style="background-image: url({{this.image}});"></div>
+                            <h4 class="home-product-item__name">{{this.name}}</h4>
+                            <div class="home-product-item__price">
+                                <span class="home-product-item__price-old">{{this.oldPrice}}đ</span>
+                                <span class="home-product-item__price-current">{{this.currentPrice}}đ</span>
+                            </div>
+                            <div class="home-product-item__action">
+                                <label class="home-product-item__like active">
+                                    <input type="checkbox" id="check-heart" class="check-heart">
+                                    <label for="check-heart" class="heart-regular fa-regular fa-heart"></label>
+                                    <label for="check-heart" class="heart-solid fa-solid fa-heart"></label>
+                                </label>
+                                <span class="home-product-item__rating">
+                                    <i class="fa-solid fa-star active"></i>
+                                    <i class="fa-solid fa-star active"></i>
+                                    <i class="fa-solid fa-star active"></i>
+                                    <i class="fa-solid fa-star active"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+                                <span class="home-product-item__sold">
+                                    {{#if (compare this.remaining 0)}}
+                                    còn {{this.remaining}}
+                                    {{else}}
+                                    hết hàng
+                                    {{/if}}
+                                </span>
+                            </div>
+                            <div class="home-product-item__origin">
+                                <span class="home-product-item__brand">{{this.brand}}</span>
+                                <span class="home-product-item__origin-name">{{origin}}</span>
+                            </div>
+                            <div class="home-product-item__favourite">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Yêu thích</span>
+                            </div>
+                            {{#if this.oldPrice}}
+                                <div class="home-product-item__sale-off">
+                                    <span class="home-product-item__sale-off-percent">{{percent this.oldPrice this.currentPrice }}%</span>
+                                    <span class="home-product-item__sale-off-label">GIẢM</span>
+                                </div>
+                            {{/if}}
+                        </a>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+            <!-- Phần phân trang -->
+            <div class="mt-4 text-center col-xl-12">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {{#if (gt currentPage 1)}}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{decrement currentPage}}&type={{activeType}}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {{/if}}
+
+                        {{#each (range 1 totalPages)}}
+                        <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                            <a class="page-link" href="?page={{this}}&type={{../activeType}}">{{this}}</a>
+                        </li>
+                        {{/each}}
+
+                        {{#if (lt currentPage totalPages)}}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{increment currentPage}}&type={{activeType}}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {{/if}}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form action="" id="page-division" class="d-none">
+    <input type="text" id="page" name="page">
+</form>
+
+<script>
+    function handlePage(page) {
+        const pageDivision = document.getElementById('page-division');
+        const pageNumber = document.getElementById('page');
+        const pressedPage = page.innerText;
+        pageNumber.value = pressedPage;
+        pageDivision.submit();
+    }
+</script>

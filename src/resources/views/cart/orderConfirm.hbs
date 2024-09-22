@@ -1,0 +1,139 @@
+<form name="container-form" method="POST" action="/order/handle-order?_method=PUT" class="mt-4" >
+    <h1>Các đơn hàng</h1>
+    <div class="mt-4 d-flex align-items-center">
+        <div class="form-check mr-4">
+            <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+            <label class="form-check-label" for="checkbox-all">
+            Chọn tất cả
+            </label>
+        </div>
+        <select class="form-control form-control-sm select-set-width" name="action"  required>
+            <option value="">-- Hành động --</option>
+            <option value="confirm">Xác nhận</option>
+            <option value="deliver">Hoàn thành</option>
+            <option value="cancel">Hủy đơn</option>
+        </select>
+
+      <button type="submit" class="btn btn-primary ml-4 btn-submit-all disabled">Thực hiện</button>
+    </div>
+    <div>
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Đơn hàng số</th>
+                    <th scope="col">Tên khách hàng</th>
+                    <th scope="col">Địa chỉ</th>
+                    <th scope="col">Số tiền</th>
+                    <th scope="col">Tình trạng</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each data}}
+                    <tr>
+                        <td>
+                            <div class="form-check mr-4">
+                                <input class="form-check-input" type="checkbox" name="productIds[]" value="{{this.order._id}}">
+                            </div>
+                        </td>
+                        <th scope="row">{{sum @index 1}}</th>
+                        <th scope="row">{{this.user.name}}</th>
+                        <td class="unit-price">{{#if this.order.shippingAddress}}{{ this.order.shippingAddress }}{{else}}{{ this.user.address }}{{/if}}</td>
+                        <td class="total-amount">{{ this.order.totalCost }}</td>
+                        <td>{{ this.order.status }}</td>
+                        <td>
+                            <a href="#" data-id="{{this.order._id}}" class="btn btn-link btn-info">Xem chi tiết</a> 
+                            <a href="#" data-id="{{this.order._id}}" class="btn btn-link btn-confirm">Xác nhận</a> 
+                            <a href="#" data-id="{{this.order._id}}" class="btn btn-link btn-delivered">Hoàn thành</a> 
+                            <a href="#" data-id="{{this.order._id}}" class="btn btn-link btn-cancel">Hủy đơn</a> 
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+
+                    <span>Chưa có đơn hàng nào</span>
+                    </tr>
+                {{/each}}  
+            </tbody>
+        </table>
+    </div>
+</form>
+<form method="POST" id="form-confirm"></form>
+<form method="POST" id="form-delivered"></form>
+<form method="GET" id="form-info"></form>
+<form method="POST" id="form-cancel"></form>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var checkboxAll = $("#checkbox-all");
+        var checkboxProductItems = $('input[name="productIds[]"]');
+        var containerForm = $("#container-form");
+        var btnSubmitAll = document.querySelector(".btn-submit-all");
+        checkboxAll.change(function () {
+            var isCheckedAll = $(this).prop('checked');
+            checkboxProductItems.prop('checked', isCheckedAll);
+        });
+
+        // Checkbox product items change
+        checkboxProductItems.change(function () {
+            var isCheckedAll = checkboxProductItems.length === $('input[name="productIds[]"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+            renderCheckAllSubmitBtn();
+        });
+
+        $('#deleteProduct').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            productId = button.data('id');
+            renderCheckAllSubmitBtn();
+        });
+
+        btnSubmitAll.onclick = function (e){
+          var isSubmitable = $(this).hasClass('disabled');
+          if(isSubmitable) e.preventDefault();
+        }
+
+        function renderCheckAllSubmitBtn(){
+          var checkedLengthProductItems = $('input[name="productIds[]"]:checked').length;
+          if(checkedLengthProductItems > 0){
+            btnSubmitAll.classList.remove('disabled');
+            console.log('true')
+          }else {
+            console.log('false')
+            btnSubmitAll.classList.add('disabled');
+          }
+        }
+
+        // Handle confirm button click
+        $('.btn-confirm').click(function() {
+            var orderId = $(this).data('id'); // Get the data-id attribute of the button
+            var formConfirm = $('#form-confirm');
+            formConfirm.attr('action', "/order/confirm-order/" + orderId + "?_method=PUT");
+            formConfirm.submit();
+        });
+
+        $('.btn-delivered').click(function() {
+            var orderId = $(this).data('id'); 
+            var formDelivered = $('#form-delivered');
+            formDelivered.attr('action', "/order/delivered-order/" + orderId + "?_method=PUT");
+            formDelivered.submit();
+        });
+
+        $('.btn-cancel').click(function() {
+            var orderId = $(this).data('id'); 
+            var formCancel = $('#form-cancel');
+            formCancel.attr('action', "/order/cancel-order/" + orderId + "?_method=PUT");
+            formCancel.submit();
+        });
+
+        $('.btn-info').click(function() {
+            var orderId = $(this).data('id'); 
+            var formInfo = $('#form-info');
+            formInfo.attr('action', "/order/info-order/" + orderId);
+            formInfo.submit();
+        });
+
+    });
+
+</script>

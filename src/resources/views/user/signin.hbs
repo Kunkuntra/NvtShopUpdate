@@ -1,0 +1,73 @@
+<div class="css">
+  <form id="loginForm">
+      <div class="mt-4">
+          <h1>Đăng nhập</h1>
+      </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Mật khẩu</label>
+      <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+  </form>
+</div>
+<style>
+  body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+    }
+  .css{
+      max-width: 450px;
+      margin: 25px auto;
+      padding: 10px 50px;
+      background-color: #ffffff;
+      border-radius: 3px;
+    }
+</style>
+
+<script>
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+  const form = document.getElementById("loginForm");
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    console.log('1')
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    // Replace with your actual fetch request logic
+    const response = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+    console.log('response: ',response);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(response.ok);
+      if (data) {
+        setCookie('token', data, 1);
+        console.log('Thành công');
+        alert('Đăng nhập thành công');
+        window.location.href = '/';
+      } else {
+        console.log('Thất bại');
+        alert('Đăng nhập thất bại!!! Kiểm tra lại tài khoản mật khẩu.');
+      }
+    } else { 
+      // Handle errors during request
+      console.error(response.statusText);
+    }
+  });
+</script>

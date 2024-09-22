@@ -1,0 +1,184 @@
+
+<form method="POST" name="container-form" class="mt-4" action="/user/handle-form-actions">
+  <div>
+    <h2>Danh sách tài khoản</h2>
+    <a href="/trash/user">Thùng rác({{countUserDelete}})</a> 
+  
+    <div class="mt-4 d-flex align-items-center">
+      <div class="form-check mr-4">
+        <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+        <label class="form-check-label" for="checkbox-all">
+          Chọn tất cả
+        </label>
+      </div>
+
+      <select class="form-control form-control-sm select-set-width" name="action"  required>
+        <option value="">-- Hành động --</option>
+        <option value="delete">Xóa</option>
+      </select>
+
+      <button type="submit" class="btn btn-primary ml-4 btn-submit-all disabled">Thực hiện</button>
+    </div>
+  </div>
+  <table class="table mt-4">
+    <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">STT</th>
+            <th scope="col">Tên</th>
+            <th scope="col">Email</th>
+            <th scope="col">Địa chỉ</th>
+            <th scope="col">Số ĐT</th>
+            <th scope="col">Thời gian tạo</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each users}}
+            <tr>
+                <td>
+                  <div class="form-check mr-4">
+                    <input class="form-check-input" type="checkbox" name="userIds[]" value="{{this._id}}">
+                  </div>
+                </td>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.email}}</td>
+                <td>{{this.address}}</td>
+                <td>{{this.phonenumber}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="/user/{{this._id}}/edit" class="btn btn-link">Sửa</a> 
+                    <a href="#" class="btn btn-link" data-toggle="modal" data-target="#deleteuser" data-id="{{this._id}}">Xóa</a>
+                    <a href="#" class="btn btn-link" data-toggle="modal" data-target="#adminuser" data-id="{{this._id}}">Chuyển thành Admin</a>
+                </td>
+            </tr>
+            {{else}}
+              <tr aria-colspan="5">
+                <td>Chưa có người dùng. <a href="/user/create">Bấm vào đây</a> để thêm</td>
+              </tr>
+              
+        {{/each}}  
+    </tbody>
+  </table>
+</form>
+
+{{!-- model delete user --}}
+<div class="modal" tabindex="-1" role="dialog" id="deleteuser" aria-labelledby="deleteuserLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xóa người dùng?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn chắc chắn muốn xóa tài khoản này??</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-delete-user" type="button" class="btn btn-danger">Xóa</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{!-- form delete user --}}
+<form method="POST" id="form-delete-user"></form>
+
+
+{{!-- model Update admin user --}}
+<div class="modal" tabindex="-1" role="dialog" id="adminuser" aria-labelledby="adminuserLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chuyển thành Admin</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn chắc chắn muốn thay đổi tài khoản này thành Admin??</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-admin-user" type="button" class="btn btn-primary">Nâng cấp</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{!-- form Update admin user --}}
+<form method="POST" id="form-admin-user"></form>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        var userId;
+        var btnDeleteuser = document.getElementById("btn-delete-user");
+        var formDeleteuser = document.getElementById("form-delete-user");
+        var btnAdminuser = document.getElementById("btn-admin-user"); 
+        var formAdminuser = document.getElementById("form-admin-user");
+
+        //từ đoạn này là khai báo checkbox
+        var checkboxAll = $("#checkbox-all"); // jacuzzi thì sẽ là: $("#checkbox-all")
+        var checkboxuserItems = $('input[name="userIds[]"]');
+        var containerForm = document.forms['container-form'];
+        var btnSubmitAll = document.querySelector(".btn-submit-all");
+
+        $('#deleteuser').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            userId = button.data('id');
+        })
+        btnDeleteuser.onclick = function(){
+            formDeleteuser.action = "/user/" + userId + "?_method=DELETE";
+            formDeleteuser.submit();
+        }
+
+        $('#adminuser').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            userId = button.data('id');
+        })
+        btnAdminuser.onclick = function(){
+            formAdminuser.action = "/user/" + userId + "?_method=PATCH";
+            formAdminuser.submit();
+        }
+
+
+
+        //từ đoạn này là checkbox
+
+        // checkbox-all change
+        checkboxAll.change(function () {
+          var isCheckedAll = $(this).prop('checked');
+          checkboxuserItems.prop('checked', isCheckedAll);
+          renderCheckAllSubmitBtn();
+        })
+
+        //checkbox user items change
+        checkboxuserItems.change(function (){
+          var isCheckedAll = checkboxuserItems.length === $('input[name="userIds[]"]:checked').length;
+          checkboxAll.prop('checked', isCheckedAll);
+          renderCheckAllSubmitBtn();
+        })
+        
+        //check all submit onclick
+        btnSubmitAll.onclick = function (e){
+          var isSubmitable = $(this).hasClass('disabled');
+          if(isSubmitable) e.preventDefault();
+        }
+
+        //re-render check all submit btn
+        function renderCheckAllSubmitBtn(){
+          var checkedLengthuserItems = $('input[name="userIds[]"]:checked').length;
+          if(checkedLengthuserItems > 0){
+            btnSubmitAll.classList.remove('disabled');
+            console.log('true')
+          }else {
+            console.log('false')
+            btnSubmitAll.classList.add('disabled');
+          }
+        }
+    });
+</script>

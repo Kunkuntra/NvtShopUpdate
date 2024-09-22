@@ -1,0 +1,199 @@
+<form name="container-form" class="mt-4" >
+    <h1>Giỏ Hàng</h1>
+    <div class="mt-4 d-flex align-items-center">
+        <div class="form-check mr-4">
+            <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+            <label class="form-check-label" for="checkbox-all">
+            Chọn tất cả
+            </label>
+        </div>
+    </div>
+    <div>
+        <table class="table mt-4">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">STT</th>
+                <th scope="col"></th>
+                <th scope="col">Tên</th>
+                <th scope="col">Đơn giá</th>
+                <th scope="col">Số lượng</th>
+                <th scope="col">Thành tiền</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each cart.items}}
+                <tr>
+                    <td>
+                    <div class="form-check mr-4">
+                        <input class="form-check-input" type="checkbox" name="productIds[]" value="{{this.product._id}}">
+                    </div>
+                    </td>
+                    <th scope="row">{{sum @index 1}}</th>
+                    <td><img src="{{ this.product.image }}" alt="Ảnh sản phẩm" class="img-product-cart"></td>
+                    <td>{{ this.product.name}}</td>
+                    <td class="unit-price">{{ this.product.currentPrice }}</td>
+                    <td>
+                        <button type="button" class="btn-sub-cart">-</button>
+                        <span  class="quantity-cart">{{ this.quantity }}</span>
+                        <button type="button" class="btn-add-cart">+</button>
+                    </td>
+                    <td class="total-amount">{{ multi this.quantity this.product.currentPrice }}</td>
+                    <td>
+                        <a href="#" class="btn btn-link" data-toggle="modal" data-target="#deleteProduct" data-id="{{this.product._id}}">Xóa</a>
+                    </td>
+                </tr>
+                {{else}}
+                <span>Giỏ hàng trống</span>
+            {{/each}}  
+        </tbody>
+    </table>
+    <div>
+        Tổng số lượng sản phẩm: {{cart.total}}
+    </div>
+        
+        {{!-- model delete product --}}
+        <div class="modal" tabindex="-1" role="dialog" id="deleteProduct" aria-labelledby="deleteProductLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xóa sản phẩm khỏi giỏ hàng?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn chắc chắn muốn xóa??</p>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-delete-product" type="button" class="btn btn-danger">Xóa</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        {{!-- form delete product cart --}}
+        <form method="POST" id="form-delete-product"></form>
+    </div>
+</form>
+<button class="btn-export-invoice" type="button">Xuất hóa đơn</button>
+<form action="/cart/bill" id="cart-bill"></form>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        var productId;
+        var btnDeleteProduct = document.getElementById("btn-delete-product");
+        var formDeleteProduct = document.getElementById("form-delete-product");
+        //từ đoạn này là khai báo checkbox
+        var checkboxAll = $("#checkbox-all"); // jQuery thì sẽ là: $("#checkbox-all")
+        var checkboxProductItems = $('input[name="productIds[]"]');
+        var containerForm = document.forms['container-form'];
+
+        //khai báo xử lý thay đổi quantity
+        const addButtons = document.querySelectorAll(".btn-add-cart");
+        const subButtons = document.querySelectorAll(".btn-sub-cart");
+        // checkbox-all change
+        checkboxAll.change(function () {
+          var isCheckedAll = $(this).prop('checked');
+          checkboxProductItems.prop('checked', isCheckedAll);
+        })
+
+        //checkbox product items change
+        checkboxProductItems.change(function (){
+          var isCheckedAll = checkboxProductItems.length === $('input[name="productIds[]"]:checked').length;
+          checkboxAll.prop('checked', isCheckedAll);
+        })
+
+        $('#deleteProduct').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            productId = button.data('id');
+        })
+        btnDeleteProduct.onclick = function(){
+            formDeleteProduct.action = "/cart/" + productId + "?_method=DELETE";
+            formDeleteProduct.submit();
+        }
+
+        //tổng tiền
+        function calculateTotalAmount(row) {
+            const unitPriceElement = row.querySelector(".unit-price");
+            const quantityElement = row.querySelector(".quantity-cart");
+            const totalAmountElement = row.querySelector(".total-amount");
+            if (unitPriceElement && quantityElement && totalAmountElement) {
+                const unitPrice = parseFloat(unitPriceElement.textContent.replace(/[^0-9.-]+/g,""));
+                const quantity = parseInt(quantityElement.textContent);
+                const totalAmount = unitPrice * quantity;
+                totalAmountElement.textContent = totalAmount
+            }
+        }
+
+        //xử lý thay đổi quantity
+        addButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                const quantityElement = button.parentElement.querySelector(".quantity-cart");
+                if (quantityElement) {
+                    let quantity = parseInt(quantityElement.textContent);
+                    quantity++;
+                    quantityElement.textContent = quantity;
+                    calculateTotalAmount(button.closest("tr"));
+                }
+            });
+        });
+        subButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                const quantityElement = button.parentElement.querySelector(".quantity-cart");
+                if (quantityElement) {
+                    let quantity = parseInt(quantityElement.textContent);
+                    if (quantity > 0) {
+                        quantity--;
+                        quantityElement.textContent = quantity;
+                        calculateTotalAmount(button.closest("tr"));
+                    }
+                }
+            });
+        });
+
+        // Hàm lấy thông tin của sản phẩm và lưu vào cookie
+        function saveCartDataToCookie() {
+            var cartData = [];
+            // Lặp qua từng sản phẩm trong bảng
+            $('tbody tr').each(function() {
+                var productId = $(this).find('input[name="productIds[]"]').val();
+                var quantity = parseInt($(this).find('.quantity-cart').text());
+                var unitPrice = parseFloat($(this).find('.unit-price').text());
+                var totalAmount = parseFloat($(this).find('.total-amount').text());
+                // Thêm thông tin của sản phẩm vào mảng cartData
+                cartData.push({
+                    productId: productId,
+                    quantity: quantity,
+                    unitPrice: unitPrice,
+                    totalAmount: totalAmount
+                });
+            });
+            // Chuyển mảng thành chuỗi JSON
+            var cartDataJSON = JSON.stringify(cartData);
+            // Lưu vào cookie
+            document.cookie = 'cartData=' + cartDataJSON;
+        }
+        
+        // Sự kiện thay đổi checkbox tất cả
+        checkboxAll.change(function () {
+            var isCheckedAll = $(this).prop('checked');
+            checkboxProductItems.prop('checked', isCheckedAll);
+        });
+
+        // Sự kiện thay đổi checkbox sản phẩm
+        checkboxProductItems.change(function (){
+            var isCheckedAll = checkboxProductItems.length === $('input[name="productIds[]"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+        });
+        const cartBill = document.getElementById('cart-bill');
+        // Gọi hàm lưu thông tin vào cookie khi click vào nút "Xuất hóa đơn"
+        $('.btn-export-invoice').click(function() {
+            cartBill.submit();
+            saveCartDataToCookie();
+        });
+    });
+
+
+</script>

@@ -1,0 +1,168 @@
+:root{
+    --white-color: #fff;
+    --black-color:#000;
+    --text-color:#333;
+    --primary-color:#59bcf3;
+    --border-color:#dbdbdb;
+    --gold-color:#ffce3d;
+    --height-header: 120px;
+    --height-navbar:20px;
+    --height-header-search:calc( var(--height-header) - var(--height-navbar) - 4px );
+    --width-logo: 120px;
+    --height-logo:calc( var(--width-logo)* 0.5) ;
+}
+*{
+    box-sizing: inherit;
+}
+html{
+    font-size: 62.5%;
+    line-height: 1.6rem;
+    font-family: 'Roboto', sans-serif;
+    box-sizing: border-box;
+}
+
+/* Animation*/
+@keyframes fadeIn{ /* Animation hiện ra dần*/
+    from{
+        opacity: 0;
+    }
+    to{
+        opacity: 1;
+    }
+}
+@keyframes Growth{ /*Animation nở ra */
+    from{
+        transform: scale(0); /* transform dùng để thay đổi kích thước. scale là để chỉ định kích thước của thẻ*/
+    }
+    to{
+        transform: scale(1);
+    }
+}
+/*Modal*/
+.modal{
+    position: fixed; /* Thuộc tính để có thể lấy hoàn toàn màn hình*/
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+}
+.modal__overlay{
+    position: absolute;/* Kế thừa thuộc tính của lớp cha trươc*/
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.4);
+    animation:  fadeIn ease-in 0.15s;
+
+}
+.modal__body{
+    /* width: 300px;
+    height: 300px; */
+    margin: auto;
+    position: relative; /*Để tăng cấp cho lớp body bằng cấp với lớp overlay và body viết sau nên sẽ nằm trên*/
+    z-index: 1;/*Thuộc tính để gán cho lớp một giá trị về độ ưu tiên lên trên  x-index càng cao thì càng được xếp lên đầu*/
+}
+/* button style*/
+.btn{
+    min-width: 124px;
+    height: 34px;
+    text-decoration: none;
+    border-radius: 2px;
+    border: none;
+    font-size: 1.5rem;
+    padding: 0 12px;
+    outline: none;
+    cursor: pointer;
+    color: var(--text-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.6rem;
+}
+.btn:hover{
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.btn.btn--Primary{ /*Cách viết liền dấu chấm yêu cầu thẻ phải có cả 2 class mới được css*/
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
+.btn.btn--disabled{
+    cursor: default;
+    color: #ccc;
+    background-color: #999;
+}
+.hidden{
+    display: none;
+}
+
+/* selection  */
+.select-input{
+    min-width: 200px;
+    height: 34px;
+    padding: 0 12px;
+    background-color: #f0f0f0;
+    border-radius: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.4rem;
+    position: relative;
+}
+.select-input__icon{
+    position: relative;
+    cursor: pointer;
+}
+.select-input__list{
+    z-index: 1;
+    position: absolute;
+    top: 60%;
+    left: 0%;
+    background-color: #f0f0f0;
+    width: 100%;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+    list-style: none;
+    padding:8px 16px;
+    display: none;
+    cursor: pointer;
+}
+.select-input__item{
+    font-size: 1.4rem;
+    font-weight: 500;
+    padding: 8px 0;
+}
+.select-input__item:hover{
+    color: var(--primary-color);
+}
+.select-input:hover .select-input__list{
+    display: block;
+}
+
+/* pagination */
+.pagination{
+    margin-top: 40px;
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.pagination-item{
+
+}
+.pagination-item__link{
+    text-decoration: none;
+    font-size: 1.8rem;
+    color: #999;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin: 0 12px;
+}   
+.active .pagination-item__link{
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
+.active .pagination-item__link:hover{
+    opacity: 0.92;
+}
+.pagination-item__icon{
+
+}

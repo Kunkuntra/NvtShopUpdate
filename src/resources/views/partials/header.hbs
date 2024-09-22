@@ -1,0 +1,141 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">Nvt-shop</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <nav class="navbar navbar-dark bg-dark justify-content-between">
+                <form class="form-inline" action="/product/search" method="GET">
+                  <input class="form-control mr-sm-2" name="q" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+              </nav>
+            </li>
+            <li class="nav-item active mb-4" id="cart-view">
+              <nav class="navbar navbar-dark bg-dark justify-content-between">
+                <a href="/cart">
+                  <i class="fa-solid fa-cart-shopping" id="logo-cart"></i>
+                </a>
+              </nav>
+            </li>
+            <li class="nav-item dropdown d-none" id="admin-view">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="userName">Admin Thăng</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="/me">Thông tin cá nhân</a>
+                <a class="dropdown-item" href="/product/create">Đăng sản phẩm</a>
+                <a href="/order/admin/order" class="dropdown-item">Đơn hàng chờ xác nhận</a>
+                <div class="dropdown-divider"></div>  
+                <a class="dropdown-item" href="/stored/product">Các sản phẩm đã đăng</a>
+                <a class="dropdown-item" href="/stored/user">Danh sách người dùng</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/statistic/daily-revenue">Báo cáo</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" id="log-out">Đăng xuất</a>
+              </div>
+              <form action="/auth/logout" method="POST" id="form-log-out"></form>
+            </li>
+
+            <li class="nav-item dropdown d-none" id="user-view">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="userName">Admin Thăng</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="/me">Thông tin cá nhân</a>
+                <a class="dropdown-item" href="/order/me">Theo dõi đơn hàng</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" id="log-out2">Đăng xuất</a>
+              </div>
+              <form action="/auth/logout" method="POST" id="form-log-out"></form>
+            </li>
+
+            <li class="nav-item"><a class="auth-log temporary-users" href="/auth/signup">Đăng ký</a></li>
+            <li class="nav-item"><a class="auth-log temporary-users" href="/auth/signin">Đăng nhập</a></li>
+          </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+  const logOut = document.getElementById("log-out");
+  const logOut2 = document.getElementById("log-out2");
+  const formLogOut = document.getElementById("form-log-out");
+  logOut.onclick = function(){
+    formLogOut.submit();
+  }
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+  document.getElementById("log-out").addEventListener("click", function() {
+    setCookie('token', '', -1); // Đặt lại cookie với giá trị rỗng và thời gian hết hạn là quá khứ
+    window.location.href = '/';
+  });
+  document.getElementById("log-out2").addEventListener("click", function() {
+    setCookie('token', '', -1); // Đặt lại cookie với giá trị rỗng và thời gian hết hạn là quá khứ
+    window.location.href = '/';
+  });
+
+  function getCookie(name) {
+    let cookieArray = document.cookie.split(';');
+    for(let i = 0; i < cookieArray.length; i++) {
+      let cookiePair = cookieArray[i].split('=');
+      if(name == cookiePair[0].trim()) {
+        return decodeURIComponent(cookiePair[1]);
+      }
+    }
+    return null;
+  }
+
+  function decodeBase64Url(str) {
+    // Thay thế các ký tự URL safe thành Base64 standard
+    let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    // Decode Base64
+    let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const token = getCookie('token');
+
+    const userName = document.querySelectorAll(".userName");
+    const adminView = document.getElementById("admin-view");
+    const userView = document.getElementById("user-view");
+    const temporaryUsers = document.querySelectorAll(".temporary-users");
+
+    if (token) {
+      const parts = token.split('.');
+      if (parts.length === 3) { // Kiểm tra định dạng JWT hợp lệ
+        const payload = decodeBase64Url(parts[1]);
+        console.log(payload);
+        temporaryUsers.forEach(function(userElement) {
+          document.getElementById('cart-view').classList.remove("d-none");
+          userElement.classList.add("d-none");
+        });
+        if(payload.admin){
+          adminView.classList.remove("d-none");
+        }else{
+          userView.classList.remove("d-none");
+        }
+        userName.forEach(function(user) {
+          user.textContent = payload.name;
+        });
+      }
+    } else {
+      adminView.classList.add("d-none");
+      temporaryUsers.forEach(function(userElement) {
+        userElement.classList.remove("d-none");
+        document.getElementById('cart-view').classList.add("d-none");
+      });
+    }
+  });
+</script>

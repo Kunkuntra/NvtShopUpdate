@@ -1,0 +1,59 @@
+<div class="container mt-4">
+    <h2 class="mb-4">Báo cáo doanh thu ngày {{dailyRevenue.date}}</h2> 
+    <a href="/statistic/group-revenue">Chọn ngày</a>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Doanh thu</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Tổng doanh thu trong ngày</h6>
+                    <p class="card-text text-success">{{dailyRevenue.totalRevenue}} VND</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Số đơn hàng</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Tổng số đơn hàng trong ngày</h6>
+                    <p class="card-text text-info">{{dailyRevenue.totalOrders}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <h4>Chi tiết đơn hàng</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Sản phẩm</th>
+                        <th scope="col">Số lượng</th>
+                        <th scope="col">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sử dụng vòng lặp để hiển thị chi tiết đơn hàng -->
+                    {{#each dailyRevenue.orderDetails}}
+                        <tr>
+                            <th scope="row">{{sum @index 1}}</th>
+                            <td>{{this.product.name}}</td>
+                            <td>{{this.quantity}}</td>
+                            <td>{{this.subtotal}} VND</td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    .container {
+        max-width: 800px;
+    }
+
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+</style>

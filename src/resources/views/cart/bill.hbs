@@ -1,0 +1,127 @@
+<form name="container-form" class="mt-4" >
+    <h1>Hóa đơn</h1>
+    <div>
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th scope="col">STT</th>
+                    <th scope="col"></th>
+                    <th scope="col">Tên</th>
+                    <th scope="col">Đơn giá</th>
+                    <th scope="col">Số lượng</th>
+                    <th scope="col">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each cart.items}}
+                    <tr>
+                        <th scope="row">{{sum @index 1}}</th>
+                        <td><img src="{{ this.product.image }}" alt="Ảnh sản phẩm" class="img-product-cart"></td>
+                        <td>{{ this.product.name}}</td>
+                        <td class="unit-price">{{ this.product.currentPrice }}</td>
+                        <td>
+                            <span class="quantity-cart">{{ this.quantity }}</span>
+                        </td>
+                        <td class="total-amount">{{ multi this.quantity this.product.currentPrice }}</td>
+                    </tr>
+                    {{else}}
+                    <span>Chưa chọn sản phẩm mua</span>
+                {{/each}}  
+            </tbody>
+        </table>
+        <div>
+            Tổng tiền hóa đơn: {{ sumCost }}
+        </div>
+    </div>
+</form>
+
+<div class="shipping-address mt-4">
+    <label for="shipping-address">Địa chỉ giao hàng:</label>
+    <textarea id="shipping-address" name="shipping-address" rows="4" placeholder="Nhập địa chỉ giao hàng..." class="shipping-address-value"></textarea>
+</div>
+
+<div class="payment-method mt-4">
+    <label for="payment-method">Hình thức thanh toán:</label>
+    <select id="payment-method" name="payment-method">
+        <option value="cash">Thanh toán tiền mặt</option>
+        <option value="credit-card">Thanh toán thẻ tín dụng</option>
+    </select>
+</div>
+<form action="/order/create-order" method="POST" id="create-order" class="d-none">
+    <input id="sumCost" type="text" value="{{sumCost}}" name="sumCost">
+    <input id="data-bill" type="text" value="{{json cart}}" name="data" >
+    <input type="text" value="" name="shippingAddress" id="shipping-address-value">
+</form>
+<form action="/order/payment-info" id="pay-order" class="d-none">
+    <input type="text" value="{{sumCost}}" name="sumCost">
+    <input type="text" value="{{json cart}}" name="data" >
+    <input type="text" value="" name="shippingAddress" id="shipping-address-value1">
+</form>
+<button class="btn-export-invoice" type="button">Thanh toán</button>
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for(let i = 0; i <ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+        function setCookie(cname, cvalue, exdays) {
+            const d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+        function saveDataToCookie(){
+            var shippingAddress = document.querySelector(".shipping-address-value").value;
+            var data = document.getElementById('data-bill').value;
+            var sumCost = document.getElementById('sumCost').value;
+
+            var existingCartData = getCookie('dataBill');
+            
+            if (existingCartData) {
+                document.cookie = 'dataBill=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            }
+            var dataBill = {
+                data:data,
+                sumCost: sumCost,
+                shippingAddress: shippingAddress,
+            };
+            
+            //document.cookie = 'dataBill =' JSON.stringify(dataBill)
+            setCookie('dataBill', JSON.stringify(dataBill), 1);
+        }
+        
+        var btnExportInvoice = document.querySelector(".btn-export-invoice");
+        console.log(document.querySelector(".shipping-address-value"));
+        btnExportInvoice.addEventListener("click", function() {
+            var shippingAddress = document.getElementById("shipping-address").value;
+            var paymentMethod = document.getElementById("payment-method").value;
+            var sumCost = parseFloat("{{ sumCost }}"); 
+            
+
+            if (paymentMethod === "cash") {
+                document.getElementById("shipping-address-value").value = document.querySelector(".shipping-address-value").value;
+                document.getElementById("create-order").submit();
+            } else if (paymentMethod === "credit-card") {
+                //saveDataToCookie();
+                document.getElementById("shipping-address-value1").value = document.querySelector(".shipping-address-value").value;
+                document.getElementById("pay-order").submit();
+            } else {
+                
+                alert("Hình thức thanh toán không hợp lệ.");
+            }
+        });
+    });
+
+</script>

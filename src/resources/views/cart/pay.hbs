@@ -1,0 +1,107 @@
+<form action="/order/success-pay" method="GET" name="payment-form" class="">
+    <div class="mt-4">
+        <h1>Thông Tin Thẻ</h1>
+        <div>
+            <label for="card-number">Số thẻ:</label>
+            <input type="text" id="card-number" name="card-number" placeholder="Nhập số thẻ...">
+        </div>
+        <div>
+            <label for="expiry-date">Ngày hết hạn:</label>
+            <input type="text" id="expiry-date" name="expiry-date" placeholder="MM/YY">
+        </div>
+        <div>
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" name="cvv" placeholder="Nhập CVV...">
+        </div>
+        <button class="btn-submit-payment mt-4" type="submit">Thanh toán</button>
+    </div>
+</form>
+<style>
+    form[name="payment-form"] {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    form[name="payment-form"] h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    form[name="payment-form"] div {
+        margin-bottom: 15px;
+    }
+
+    form[name="payment-form"] label {
+        display: block;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    form[name="payment-form"] input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    form[name="payment-form"] button.btn-submit-payment {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    form[name="payment-form"] button.btn-submit-payment:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+{{!-- <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        var paymentForm = document.querySelector("form[name='payment-form2']");
+        document.querySelector(".btn-submit-payment").onclick = function(){
+            var dataBillCookie = getCookie('dataBill');
+            if(dataBillCookie){
+
+                var dataBill = JSON.parse(dataBillCookie);
+                console.log(dataBill);
+                document.getElementById("sumCost").value = dataBill.sumCost;
+                document.getElementById("shippingAddress").value = dataBill.shippingAddress;
+                document.getElementById("data-bill").value = dataBill.data;
+
+                paymentForm.submit();
+            }else {
+                alert("Không tìm thấy dữ liệu của đơn");
+            }
+        }
+        
+
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for(let i = 0; i <ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+    });
+</script> --}}

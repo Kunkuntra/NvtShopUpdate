@@ -1,0 +1,46 @@
+<form class="mt-4" method="POST" action="/product/{{product._id}}?_method=PUT">
+    <h3>Chỉnh sửa sản phẩm</h3>
+    
+    <div class="form-group mt-4">
+        <label for="name">Tên khóa học</label>
+        <input type="text" class="form-control" id="name" value="{{product.name}}" name="name">
+    </div>
+    <div class="form-group">
+        <label for="description">Mô tả sản phẩm</label>
+        <textarea class="form-control" id="description" name="description">{{product.description}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="image">Link ảnh</label>
+        <input type="text" class="form-control" id="image" value="{{product.image}}" name="image">
+    </div>
+    <div class="form-group">
+        <label for="productType">Phân loại</label>
+        <select class="form-control form-control-sm select-set-width" name="productType"  required>
+            <option value="Other">Khác</option>
+            <option value="Furnitures">Nội thất</option>
+            <option value="Foods">Đồ ăn</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="brand">Hãng</label>
+        <input type="text" class="form-control" id="brand" value="{{product.brand}}" name="brand">
+    </div>
+    <div class="form-group">
+        <label for="currentPrice">Giá mới</label>
+        <input type="text" class="form-control" id="currentPrice" value="{{product.currentPrice}}" name="currentPrice">
+    </div>
+    <div class="form-group">
+        <label for="oldPrice">Giá cũ</label>
+        <input type="text" class="form-control" id="oldPrice" value="{{product.oldPrice}}" name="oldPrice">
+    </div>
+    <div class="form-group">
+        <label for="origin">Nước sản xuất</label>
+        <input type="text" class="form-control" id="origin" value="{{product.origin}}" name="origin">
+    </div>
+    <div class="form-group">
+        <label for="remaining">Số lượng</label>
+        <input type="text" class="form-control" id="remaining" value="{{product.remaining}}" name="remaining">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+</form>
